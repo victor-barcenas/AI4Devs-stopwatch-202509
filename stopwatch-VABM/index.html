@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch & Countdown Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-button:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .timer-content {
+            display: none;
+        }
+
+        .timer-content.active {
+            display: block;
+        }
+
+        .display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #333;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #e9ecef;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .btn-start {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-pause {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-pause:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-lap {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-lap:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .countdown-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .time-input {
+            width: 80px;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .laps {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .lap-item {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Courier New', monospace;
+        }
+
+        .lap-item:last-child {
+            border-bottom: none;
+        }
+
+        .finished {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .display {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .countdown-inputs {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="switchTab('stopwatch')">Stopwatch</button>
+            <button class="tab-button" onclick="switchTab('countdown')">Countdown</button>
+        </div>
+
+        <!-- Stopwatch Tab -->
+        <div id="stopwatch" class="timer-content active">
+            <div class="display" id="stopwatch-display">00:00:00</div>
+            <div class="controls">
+                <button class="btn btn-start" id="stopwatch-start" onclick="startStopwatch()">Start</button>
+                <button class="btn btn-pause" id="stopwatch-pause" onclick="pauseStopwatch()" style="display: none;">Pause</button>
+                <button class="btn btn-lap" id="stopwatch-lap" onclick="lapStopwatch()" style="display: none;">Lap</button>
+                <button class="btn btn-reset" onclick="resetStopwatch()">Reset</button>
+            </div>
+            <div class="laps" id="laps-container"></div>
+        </div>
+
+        <!-- Countdown Tab -->
+        <div id="countdown" class="timer-content">
+            <div class="countdown-inputs">
+                <div>
+                    <input type="number" class="time-input" id="hours" min="0" max="23" value="0">
+                    <div class="input-label">Hours</div>
+                </div>
+                <div>
+                    <input type="number" class="time-input" id="minutes" min="0" max="59" value="5">
+                    <div class="input-label">Minutes</div>
+                </div>
+                <div>
+                    <input type="number" class="time-input" id="seconds" min="0" max="59" value="0">
+                    <div class="input-label">Seconds</div>
+                </div>
+            </div>
+            <div class="display" id="countdown-display">05:00:00</div>
+            <div class="controls">
+                <button class="btn btn-start" id="countdown-start" onclick="startCountdown()">Start</button>
+                <button class="btn btn-pause" id="countdown-pause" onclick="pauseCountdown()" style="display: none;">Pause</button>
+                <button class="btn btn-reset" onclick="resetCountdown()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
